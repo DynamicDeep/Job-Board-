@@ -1,11 +1,17 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client'; // Notice the updated import
+import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme/theme'; // Adjust the path if your theme.js is in a different folder
 
-const root = ReactDOM.createRoot(document.getElementById('root')); // Use createRoot
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
   </React.StrictMode>
 );
+
