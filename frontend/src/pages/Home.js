@@ -1,16 +1,19 @@
 import React from 'react';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
+import { Container } from '@mui/material';
+import HeroSection from '../components/Home/HeroSection';
+import FeaturesSection from '../components/Home/FeaturesSection';
+import HowItWorksSection from '../components/Home/HowItWorksSection';
+import BlogSection from '../components/Home/BlogSection';
+import Footer from '../components/Home/footer';
 
 const Home = () => {
   return (
-    <Container>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Welcome to the Job Board!
-      </Typography>
-      <Typography variant="body1">
-        Find your dream job or hire top talent. Explore various opportunities tailored to your needs.
-      </Typography>
+    <Container sx={{ mt: 4 }}>
+      <HeroSection />
+      <FeaturesSection />
+      <HowItWorksSection />
+      <BlogSection />
+      <Footer />
     </Container>
   );
 };
