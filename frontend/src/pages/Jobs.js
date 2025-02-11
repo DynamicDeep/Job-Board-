@@ -16,6 +16,7 @@ import {
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import BusinessIcon from "@mui/icons-material/Business";
 import SearchIcon from "@mui/icons-material/Search";
+import { Link } from "react-router-dom";
 
 const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -110,7 +111,7 @@ const Jobs = () => {
                 <Button size="small" variant="contained" color="primary">
                   Apply Now
                 </Button>
-                <Button size="small" variant="outlined" color="secondary">
+                <Button size="small" variant="contained" color="secondary" component={Link} to={`/job/${job.id}`}>
                   View Details
                 </Button>
               </CardActions>
