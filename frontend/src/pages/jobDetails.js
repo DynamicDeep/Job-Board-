@@ -1,55 +1,90 @@
-import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import jobsData from "./jobsData";
-import { Box, Typography, Button, Card, CardContent, CardMedia } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  Paper,
+  Divider,
+  Chip,
+  Button
+} from '@mui/material';
+import BusinessIcon from '@mui/icons-material/Business';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useNavigate } from 'react-router-dom';
 
 const JobDetails = () => {
-  const { id } = useParams(); //Get the Job ID from the URL 
+  const { id } = useParams();
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  //Find the job with the matching ID
-  const  job = jobsData.find((job) => job.id.toString() === id);
+  useEffect(() => {
+    const fetchJob = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/jobs/${id}`);
+        if (!response.ok) throw new Error('Job not found');
+        const data = await response.json();
+        setJob(data);
+      } catch (error) {
+        console.error('Error fetching job:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJob();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={5}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   if (!job) {
-    return <Typography variant="h5" align="center">
-      Job Not Found 
-    </Typography>;
+    return (
+      <Box mt={5} textAlign="center">
+        <Typography variant="h6" color="error">
+          Job not found
+        </Typography>
+      </Box>
+    );
   }
 
   return (
-    <Box sx={{maxWidth: 800, margin: "auto", padding: 4}}>
+    <Box sx={{ padding: 4 }}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate(-1)}
-        variant="contained"
+        sx={{ marginBottom: 2 }}
       >
-        Back
+        Back to Listings
       </Button>
 
-      <Card sx={{ marginTop: 2 }}>
-        <CardMedia
-          component="img"
-          height="200"
-          image={job.company}
-          alt={`${job.company} logo`}
-        />
+      <Paper elevation={3} sx={{ padding: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          {job.title}
+        </Typography>
 
-        <CardContent>
-          <Typography variant="h4">{job.title}</Typography>
-          <Typography variant="h6" color="textSecondary">{job.company}</Typography>
-          <Typography variant="subtitle1">{job.location}</Typography>
-          <Typography variant="body1" sx={{ marginTop: 2 }}>{job.description}</Typography>
+        <Box display="flex" gap={3} alignItems="center" mb={2}>
+          <Chip icon={<BusinessIcon />} label={job.company} />
+          <Chip icon={<LocationOnIcon />} label={job.location} />
+        </Box>
 
-          <Button 
-            variant="contained"
-            color="primary"
-            sx={{ marginTop: 3}}
-          >
-            Apply Now
-          </Button>
-        </CardContent>
-      </Card>
+        <Divider sx={{ my: 2 }} />
+
+        <Typography variant="subtitle2" color="text.secondary">
+          Posted on: {new Date(job.postedAt || Date.now()).toLocaleDateString()}
+        </Typography>
+
+        <Typography variant="body1" sx={{ mt: 2, whiteSpace: 'pre-line' }}>
+          {job.description}
+        </Typography>
+      </Paper>
     </Box>
   );
 };
