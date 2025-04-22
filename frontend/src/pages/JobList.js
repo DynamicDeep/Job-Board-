@@ -29,11 +29,12 @@ const JobList = () => {
   const [open, setOpen] = useState(false);
   const [currentJob, setCurrentJob] = useState(null);
 
+  // NEW STATE FOR APPLY MODAL
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [selectedJobToApply, setSelectedJobToApply] = useState(null);
 
   const navigate = useNavigate();
-  const userRole = "jobSeeker"; // Toggle this as needed
+  const userRole = "jobSeeker"; // Toggle to "admin" as needed
 
   const [titleFilter, setTitleFilter] = useState("");
   const [companyFilter, setCompanyFilter] = useState("");
@@ -50,14 +51,11 @@ const JobList = () => {
 
   const handleDelete = async (jobId) => {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
-
     try {
       const response = await fetch(`http://localhost:5000/api/jobs/${jobId}`, {
         method: "DELETE",
       });
-
       if (!response.ok) throw new Error("Failed to delete job");
-
       setJobs(jobs.filter((job) => job._id !== jobId));
     } catch (error) {
       console.error("Error deleting job:", error);
@@ -68,24 +66,22 @@ const JobList = () => {
     setCurrentJob(job);
     setOpen(true);
   };
-
   const handleClose = () => {
     setOpen(false);
     setCurrentJob(null);
   };
-
   const handleUpdate = async () => {
     try {
       const { title, company, location, description } = currentJob;
-
-      const response = await fetch(`http://localhost:5000/api/jobs/${currentJob._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, company, location, description }),
-      });
-
+      const response = await fetch(
+        `http://localhost:5000/api/jobs/${currentJob._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, company, location, description }),
+        }
+      );
       if (!response.ok) throw new Error("Failed to update job");
-
       const updated = await response.json();
       setJobs(jobs.map((job) => (job._id === updated._id ? updated : job)));
       handleClose();
@@ -94,6 +90,7 @@ const JobList = () => {
     }
   };
 
+  // NEW HANDLER TO OPEN APPLICATION MODAL
   const handleApply = (job) => {
     setSelectedJobToApply(job);
     setApplyModalOpen(true);
@@ -191,6 +188,7 @@ const JobList = () => {
                   <Box display="flex" gap={1} flexWrap="wrap">
                     {userRole === "jobSeeker" && (
                       <>
+                        {/* UPDATED: call handleApply, not navigate */}
                         <Button size="small" variant="contained" color="primary" onClick={() => handleApply(job)}>
                           Apply
                         </Button>
@@ -250,16 +248,23 @@ const JobList = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="secondary">Cancel</Button>
-          <Button onClick={handleUpdate} color="primary" variant="contained">Save Changes</Button>
+          <Button onClick={handleClose} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} color="primary" variant="contained">
+            Save Changes
+          </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Apply Modal */}
+      {/* UPDATED: now we pass only the job’s _id */}
       <ApplyJobModal
         open={applyModalOpen}
-        onClose={() => setApplyModalOpen(false)}
-        job={selectedJobToApply}
+        onClose={() => {
+          setApplyModalOpen(false);
+          setSelectedJobToApply(null); // CLEAR after close
+        }}
+        jobId={selectedJobToApply?._id}  // ← THE KEY CHANGE
       />
     </Box>
   );

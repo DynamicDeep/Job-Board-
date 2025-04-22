@@ -1,3 +1,4 @@
+// components/ApplyJobModal.js
 import React, { useState } from "react";
 import {
   Dialog,
@@ -6,91 +7,116 @@ import {
   DialogActions,
   TextField,
   Button,
-  Typography,
   Box,
+  LinearProgress,
+  Alert
 } from "@mui/material";
 
-const ApplyJobModal = ({ open, onClose, job }) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [coverLetter, setCoverLetter] = useState("");
-  const [cv, setCv] = useState(null);
+const ApplyJobModal = ({ open, onClose, jobId }) => {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    coverLetter: "",
+    cv: null
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleFileChange = (e) => {
-    setCv(e.target.files[0]);
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === "cv") {
+      setForm((f) => ({ ...f, cv: files[0] }));
+    } else {
+      setForm((f) => ({ ...f, [name]: value }));
+    }
   };
 
   const handleSubmit = async () => {
-    if (!name || !email || !coverLetter || !cv) {
-      alert("Please fill in all fields and upload your CV.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("jobId", job._id);
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("coverLetter", coverLetter);
-    formData.append("cv", cv);
-
+    setLoading(true);
+    setError("");
+    setSuccess("");
     try {
-      const response = await fetch("http://localhost:5000/api/applications", {
-        method: "POST",
-        body: formData,
-      });
+      const data = new FormData();
+      data.append("name", form.name);
+      data.append("email", form.email);
+      data.append("coverLetter", form.coverLetter);
+      data.append("cv", form.cv);
 
-      if (!response.ok) throw new Error("Application submission failed");
-
-      alert("Application submitted successfully!");
-      onClose(); // Close modal
-      // Reset form
-      setName("");
-      setEmail("");
-      setCoverLetter("");
-      setCv(null);
+      const res = await fetch(
+        `http://localhost:5000/api/applications/${jobId}`,
+        {
+          method: "POST",
+          body: data
+        }
+      );
+      if (!res.ok) throw new Error("Failed to submit application");
+      await res.json();
+      setSuccess("Application submitted successfully!");
+      // Optionally clear form or close after a timeout:
+      setForm({ name: "", email: "", coverLetter: "", cv: null });
     } catch (err) {
-      console.error("Error submitting application:", err);
-      alert("Something went wrong. Please try again.");
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Apply for {job?.title}</DialogTitle>
-      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
-        <TextField
-          label="Your Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          fullWidth
-        />
-        <TextField
-          label="Your Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          fullWidth
-        />
-        <TextField
-          label="Cover Letter"
-          multiline
-          rows={4}
-          value={coverLetter}
-          onChange={(e) => setCoverLetter(e.target.value)}
-          fullWidth
-        />
-        <Box>
-          <Typography variant="body2" gutterBottom>
-            Upload CV (PDF, DOC, etc.)
-          </Typography>
-          <input type="file" accept=".pdf,.doc,.docx" onChange={handleFileChange} />
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Apply for This Job</DialogTitle>
+      <DialogContent dividers>
+        <Box display="flex" flexDirection="column" gap={2}>
+          {error && <Alert severity="error">{error}</Alert>}
+          {success && <Alert severity="success">{success}</Alert>}
+          <TextField
+            name="name"
+            label="Full Name"
+            value={form.name}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="email"
+            label="Email Address"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="coverLetter"
+            label="Cover Letter"
+            multiline
+            rows={4}
+            value={form.coverLetter}
+            onChange={handleChange}
+            fullWidth
+          />
+          <Button variant="contained" component="label">
+            Upload CV
+            <input
+              type="file"
+              name="cv"
+              hidden
+              accept=".pdf,.doc,.docx"
+              onChange={handleChange}
+            />
+          </Button>
+          {form.cv && <Box>{form.cv.name}</Box>}
+          {loading && <LinearProgress />}
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary">
+        <Button onClick={onClose} disabled={loading}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} color="primary" variant="contained">
-          Submit Application
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={loading || !form.cv}
+        >
+          Submit
         </Button>
       </DialogActions>
     </Dialog>
