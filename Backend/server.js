@@ -14,16 +14,22 @@ app.use(express.json());
 const mongoURI = process.env.MONGO_URI;
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-  }).then(() => console.log("MongoDB Connected"))
-    .catch((err) => console.error("Error connecting to MongoDB:", err));
-  
+}).then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("Error connecting to MongoDB:", err));
 
 // Job Routes
 const jobRoutes = require('./routes/jobRoutes');
 app.use('/api/jobs', jobRoutes);
+
+// ✅ Application Routes
+const applicationRoutes = require('./routes/applicationRoutes');
+app.use('/api/applications', applicationRoutes);
+
+// ✅ Serve uploaded CV files
+app.use('/uploads', express.static('uploads'));
 
 // Simple Test Route
 app.get('/api/test', (req, res) => {
