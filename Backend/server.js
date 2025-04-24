@@ -24,11 +24,11 @@ mongoose.connect(mongoURI, {
 const jobRoutes = require('./routes/jobRoutes');
 app.use('/api/jobs', jobRoutes);
 
-// ✅ Application Routes
+// Application Routes
 const applicationRoutes = require('./routes/applicationRoutes');
 app.use('/api/applications', applicationRoutes);
 
-// ✅ Serve uploaded CV files
+// Serve uploaded CV files
 app.use('/uploads', express.static('uploads'));
 
 // Simple Test Route
