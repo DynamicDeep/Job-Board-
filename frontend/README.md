@@ -1,70 +1,81 @@
-# Getting Started with Create React App
+Job Board
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+GitHub Repository: https://github.com/DynamicDeep/Job-Board-
 
-## Available Scripts
+Overview
 
-In the project directory, you can run:
+Job Board is a simple web application that allows users to register, post job listings, and search for open positions. It consists of a React-based frontend and a Node.js/Express backend with MongoDB for data storage.
 
-### `npm start`
+Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Before running the application locally, make sure you have installed:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Node.js (v14 or newer)
 
-### `npm test`
+npm (comes with Node.js)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+MongoDB (community edition) running on your machine, or Docker (if you prefer a containerized setup)
 
-### `npm run build`
+Quick Start (Local MongoDB)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Clone the repository:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+git clone https://github.com/DynamicDeep/Job-Board-
+cd Job-Board-
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Install dependencies for both services:
 
-### `npm run eject`
+# Frontend dependencies
+cd frontend
+npm install
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Backend dependencies
+cd ../backend
+npm install
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Running the Application
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. Frontend
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+In one terminal, start the React frontend:
 
-## Learn More
+cd frontend
+npm start
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The app will open at http://localhost:3000.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+2. Backend
 
-### Code Splitting
+In a separate terminal, start the backend server:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+cd backend
+npm run dev
 
-### Analyzing the Bundle Size
+By default, the server listens on http://localhost:5000 and connects to a local MongoDB instance at mongodb://localhost:27017/jobboard.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Docker Option
 
-### Making a Progressive Web App
+If you prefer not to install MongoDB locally, you can use Docker:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Create a Dockerfile and docker-compose.yml (already provided).
 
-### Advanced Configuration
+Run:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+git clone https://github.com/DynamicDeep/Job-Board-
+cd Job-Board-
+docker-compose up --build
 
-### Deployment
+The frontend will be available at http://localhost:3000 and the backend at http://localhost:5000.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Project Structure
 
-### `npm run build` fails to minify
+Job-Board-
+├── frontend/         # React application
+├── backend/          # Express server and API
+├── Dockerfile        # Docker image for the app
+├── docker-compose.yml# Orchestrates app + MongoDB
+└── README.md         # This file
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Contact & Support
+
+If you encounter any issues or have questions, please open an issue on GitHub or reach out to Deep Ahir.
