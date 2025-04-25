@@ -1,7 +1,10 @@
+require('dotenv').config(); // Load .env file
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config(); // Load .env file
+const authRoutes = require('./routes/authRoutes');
+
 
 const app = express(); // Create express app
 const port = 5000; // Define port
@@ -9,6 +12,8 @@ const port = 5000; // Define port
 // Middleware to parse JSON
 app.use(cors());
 app.use(express.json());
+//Register
+app.use('/api/auth', authRoutes);
 
 // Use MONGO_URI directly
 const mongoURI = process.env.MONGO_URI;

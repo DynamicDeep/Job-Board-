@@ -3,6 +3,8 @@ const { body, validationResult } = require('express-validator'); //Input validat
 const router = express.Router();
 const Job = require('../Models/Job');
 
+const auth = require('../middleware/auth');
+
 //@route GET/api/jobs
 //@desc Get all jobs with optional filters 
 //@access Public 
@@ -27,6 +29,7 @@ router.get('/', async(req, res) => {
 //@access public 
 router.post(
     '/',
+    auth,
     [
         body('title').not().isEmpty().withMessage('Title is required'),
         body('company').not().isEmpty().withMessage('Company name is required'),
@@ -34,13 +37,19 @@ router.post(
         body('description').not().isEmpty().withMessage('Description is required'),
     ],
     async (req, res) => {
+        // 1) Role check 
+        if(req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'forbidden' });
+        }
+
+        // 2) validation check 
         const errors =validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
 
+        // 3) Create
         const { title, company, location, description } = req.body;
-
         try{
             const job = new Job({ title, company, location, description });
             const newJob = await job.save();
@@ -70,6 +79,11 @@ router.get('/:id', async (req, res) => {
 
 // @route   PUT /api/jobs/:id
 router.put('/:id', async (req, res) => {
+    // only admins 
+    if(req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Forbidden' });
+    }
+
     try {
       const updatedJob = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true });
       if (!updatedJob) return res.status(404).json({ message: 'Job not found' });
@@ -86,6 +100,11 @@ router.put('/:id', async (req, res) => {
 //@access Public 
 
 router.delete('/:id', async (req, res) => {
+    //onyl admins
+    if(req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Forbidden' });
+    }
+    
     try{
         const DeletedJob = await Job.findByIdAndDelete(req.params.id);
         if (!DeletedJob) return res.status(404),json({ message: 'Job not found' });
