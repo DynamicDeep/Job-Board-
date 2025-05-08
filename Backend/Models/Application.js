@@ -1,5 +1,3 @@
-// Models/Application.js
-
 const mongoose = require('mongoose');
 
 const applicationSchema = new mongoose.Schema({
@@ -8,21 +6,18 @@ const applicationSchema = new mongoose.Schema({
     ref: 'Job',
     required: true
   },
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
+  applicantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   coverLetter: {
     type: String,
-    required: true,
+    required: true
   },
   cv: {
-    type: String, // this will store the path to the uploaded CV file
-    required: true,
+    type: String, // path to uploaded CV
+    required: true
   },
   appliedAt: {
     type: Date,

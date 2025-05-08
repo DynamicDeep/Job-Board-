@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 
 const app = express(); // Create express app
@@ -14,6 +15,9 @@ app.use(cors());
 app.use(express.json());
 //Register
 app.use('/api/auth', authRoutes);
+
+// admin authentication
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Use MONGO_URI directly
 const mongoURI = process.env.MONGO_URI;

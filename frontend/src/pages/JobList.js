@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { fetchJobs } from "../services/jobService";
 import { useNavigate } from "react-router-dom";
 import ApplyJobModal from "../components/ApplyJobModal";
+import { jwtDecode } from "jwt-decode";
+
 
 import {
   Card,
@@ -28,17 +30,25 @@ const JobList = () => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [currentJob, setCurrentJob] = useState(null);
-
-  // NEW STATE FOR APPLY MODAL
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [selectedJobToApply, setSelectedJobToApply] = useState(null);
-
-  const navigate = useNavigate();
-  const userRole = "jobSeeker"; // Toggle to "admin" as needed
-
   const [titleFilter, setTitleFilter] = useState("");
   const [companyFilter, setCompanyFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
+
+  const navigate = useNavigate();
+
+  // Get token and decode role
+  const token = localStorage.getItem("token");
+  let userRole = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      userRole = decoded.role;
+    } catch (err) {
+      console.error("Invalid token");
+    }
+  }
 
   useEffect(() => {
     const getJobs = async () => {
@@ -50,10 +60,16 @@ const JobList = () => {
   }, []);
 
   const handleDelete = async (jobId) => {
+    if (!token) return alert("No token found");
     if (!window.confirm("Are you sure you want to delete this job?")) return;
+
     try {
       const response = await fetch(`http://localhost:5000/api/jobs/${jobId}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!response.ok) throw new Error("Failed to delete job");
       setJobs(jobs.filter((job) => job._id !== jobId));
@@ -66,22 +82,28 @@ const JobList = () => {
     setCurrentJob(job);
     setOpen(true);
   };
+
   const handleClose = () => {
     setOpen(false);
     setCurrentJob(null);
   };
+
   const handleUpdate = async () => {
+    if (!token) return alert("No token found");
     try {
       const { title, company, location, description } = currentJob;
-      const response = await fetch(
-        `http://localhost:5000/api/jobs/${currentJob._id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, company, location, description }),
-        }
-      );
+
+      const response = await fetch(`http://localhost:5000/api/jobs/${currentJob._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title, company, location, description }),
+      });
+
       if (!response.ok) throw new Error("Failed to update job");
+
       const updated = await response.json();
       setJobs(jobs.map((job) => (job._id === updated._id ? updated : job)));
       handleClose();
@@ -90,7 +112,6 @@ const JobList = () => {
     }
   };
 
-  // NEW HANDLER TO OPEN APPLICATION MODAL
   const handleApply = (job) => {
     setSelectedJobToApply(job);
     setApplyModalOpen(true);
@@ -118,7 +139,6 @@ const JobList = () => {
         Explore Job Opportunities
       </Typography>
 
-      {/* Filter Inputs */}
       <Box display="flex" gap={2} justifyContent="center" mb={4} flexWrap="wrap">
         <TextField label="Filter by Title" value={titleFilter} onChange={(e) => setTitleFilter(e.target.value)} />
         <TextField label="Filter by Company" value={companyFilter} onChange={(e) => setCompanyFilter(e.target.value)} />
@@ -186,9 +206,8 @@ const JobList = () => {
                 >
                   <Chip label="Open" color="success" />
                   <Box display="flex" gap={1} flexWrap="wrap">
-                    {userRole === "jobSeeker" && (
+                    {userRole === "jobseeker" && (
                       <>
-                        {/* UPDATED: call handleApply, not navigate */}
                         <Button size="small" variant="contained" color="primary" onClick={() => handleApply(job)}>
                           Apply
                         </Button>
@@ -257,14 +276,13 @@ const JobList = () => {
         </DialogActions>
       </Dialog>
 
-      {/* UPDATED: now we pass only the job’s _id */}
       <ApplyJobModal
         open={applyModalOpen}
         onClose={() => {
           setApplyModalOpen(false);
-          setSelectedJobToApply(null); // CLEAR after close
+          setSelectedJobToApply(null);
         }}
-        jobId={selectedJobToApply?._id}  // ← THE KEY CHANGE
+        jobId={selectedJobToApply?._id}
       />
     </Box>
   );
