@@ -43,13 +43,18 @@ const ApplyJobModal = ({ open, onClose, jobId }) => {
       data.append("coverLetter", form.coverLetter);
       data.append("cv", form.cv);
 
-      const res = await fetch(
-        `http://localhost:5000/api/applications/${jobId}`,
-        {
-          method: "POST",
-          body: data
-        }
-      );
+      const token = localStorage.getItem("token");
+const res = await fetch(
+  `http://localhost:5000/api/applications/${jobId}`,
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: data
+  }
+);
+
       if (!res.ok) throw new Error("Failed to submit application");
       await res.json();
       setSuccess("Application submitted successfully!");

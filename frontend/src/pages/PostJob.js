@@ -11,6 +11,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
+import { getToken } from '../utils/auth';
 
 const PostJob = () => {
   const [formData, setFormData] = useState({
@@ -33,17 +34,18 @@ const PostJob = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate input
     if (!formData.title || !formData.company || !formData.location || !formData.description) {
       setError('Please fill in all fields');
       return;
     }
 
     try {
+      const token = getToken();
       const response = await fetch('http://localhost:5000/api/jobs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData),
       });
@@ -57,7 +59,8 @@ const PostJob = () => {
           description: '',
         });
       } else {
-        throw new Error('Failed to post job');
+        const errData = await response.json();
+        setError(errData.message || 'Failed to post job');
       }
     } catch (err) {
       console.error(err);
