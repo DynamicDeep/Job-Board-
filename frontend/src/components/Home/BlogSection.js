@@ -6,19 +6,19 @@ const blogs = [
     image: require("../../images/Book&Glass.jpg"),
     title: "5 Resume Tips to Land Your Dream Job",
     description: "Learn how to craft a standout resume with these simple tips.",
-    link: "#",
+    link: '/insights/resume-tips',
   },
   {
     image: require("../../images/Job_interview.jpg"),
     title: "Ace Your Job Interview",
     description: "Master your next interview with our expert advice.",
-    link: "#",
+    link: "/insights/interview-guide",
   },
   {
     image: require("../../images/career_trends.jpg"),
     title: "Top Career Trends in 2025",
     description: "Stay ahead of the curve with the latest industry insights.",
-    link: "#",
+    link: "/insights/career-trends",
   },
 ];
 

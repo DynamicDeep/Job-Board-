@@ -60,4 +60,44 @@ router.put('/users/:id', verifyToken, authorizeRoles('admin'), async (req, res) 
   }
 });
 
+// @route delete /api/admin/users/:id
+// @desc Admin can delete Users
+// @access Admin only
+router.delete('/users/:id', verifyToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const deleteUser = await User.findByIdAndDelete(req.params.id);
+  if (!deleteUser) return res.status(404).json({ message: 'User not found'});
+
+  res.json({ message: 'User deleted successfully', user: deleteUser });
+  } catch (err) {
+    console.error('Admin user delete error:', err);
+    res.status(500).json({ message: 'Failed to delete user'});
+  }
+})
+
+// @route PUT /api/admin/users/:id
+// @desc Admin can Verify Employers
+// @access Admin only
+router.put('/verify-employer/:id', verifyToken, authorizeRoles('admin'), async(req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found'});
+
+    if(user.role !== 'employer') {
+      return res.status(400).json({ message: 'Only employers can be verified' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { isVerified: req.body.isVerified },
+      { new: true, runValidators: true }
+    )
+
+    res.json(updatedUser);
+  } catch (err) {
+    console.error('Employer verification error:', err);
+    res.status(500).json({ message: 'Failed to update verification status' });
+  }
+});
+
 module.exports = router;

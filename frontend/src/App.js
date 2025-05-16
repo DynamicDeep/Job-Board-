@@ -8,6 +8,7 @@ import PostJob from './pages/PostJob';
 import JobDetails from './pages/JobDetails';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import EditProfileForm from './pages/EditProfileForm';
 
 // Dashboard Pages
 import AdminDashboard from './pages/AdminDashboard';
@@ -17,11 +18,18 @@ import JobseekerDashboard from './pages/JobseekerDashboard';
 // ProtectedRoute Wrapper
 import ProtectedRoute from './components/ProtectedRoute';
 
+// Sub pages for home (Blog Section)
+import ResumeTips from './components/Home/ResumeTips';
+import InterviewGuide from './components/Home/InterviewGuide';
+import CareerTrends from './components/Home/CareerTrends';
+import Footer from './components/Home/footer';
+
 function App() {
   return (
     <Router>
       <Navbar />
       <Routes>
+        {/* Public Pages */}
         <Route path="/" element={<Home />} />
         <Route path="/jobs" element={<JobList />} />
         <Route path="/contact" element={<Contact />} />
@@ -29,6 +37,12 @@ function App() {
         <Route path="/job/:id" element={<JobDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/EditProfileForm" element={<EditProfileForm />} />
+
+        {/* Blog Insight Pages */}
+        <Route path="/insights/resume-tips" element={<ResumeTips />} />
+        <Route path="/insights/interview-guide" element={<InterviewGuide />} />
+        <Route path="/insights/career-trends" element={<CareerTrends />} />
 
         {/* Protected Dashboard Routes */}
         <Route
@@ -56,6 +70,7 @@ function App() {
           }
         />
       </Routes>
+      <Footer />
     </Router>
   );
 }

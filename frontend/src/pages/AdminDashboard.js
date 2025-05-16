@@ -55,7 +55,7 @@ const AdminDashboard = () => {
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       email: user.email || '',
-      contactNumber: user.contactNumber || '',
+      contact: user.contact || '',
       location: user.location || ''
     });
     setDialogOpen(true);
@@ -106,6 +106,31 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleVerify = async (userId, currentStatus) => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/verify-employer/${userId}`, {
+        method: 'PUT', 
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ isVerified: !currentStatus })
+      });
+
+      if (!res.ok) throw new Error('Verification update failed'); 
+
+      const updatedUser = await res.json();
+
+      //Update user list 
+      setUsers((prev) => 
+        prev.map((u) => (u._id === updatedUser._id ? updatedUser : u))
+      );
+    } catch (err) {
+      console.error('Verification update failed:', err);
+    }
+  };
+
   return (
     <Box sx={{ p: 4 }}>
       <UserInfoCard />
@@ -122,11 +147,19 @@ const AdminDashboard = () => {
             <Grid item xs={12} md={6} key={user._id}>
               <Card sx={{ p: 2, position: 'relative' }}>
                 <CardContent>
+                  {user.role === 'employer' && (
+                    <Chip
+                      label = {user.isVerified ? 'VERIFIED' : 'UNVERIFIED'}
+                      color = {user.isVerified ? 'success': 'warning'}
+                      sx = {{ mt: 1, ml: 1 }}
+                    />
+                  )}
+                  <Chip label = {user.role.toUpperCase()} sx = {{ mt: 1 }} />
                   <Typography variant="h6">
                     {user.firstName || 'N/A'} {user.lastName || ''}
                   </Typography>
                   <Typography>Email: {user.email}</Typography>
-                  <Typography>Contact: {user.contactNumber || 'N/A'}</Typography>
+                  <Typography>Contact: {user.contact || 'N/A'}</Typography>
                   <Typography>Location: {user.location || 'N/A'}</Typography>
                   <Chip label={user.role.toUpperCase()} sx={{ mt: 1 }} />
                 </CardContent>
@@ -137,6 +170,15 @@ const AdminDashboard = () => {
                   <IconButton onClick={() => handleDelete(user._id)}>
                     <DeleteIcon />
                   </IconButton>
+                  {user.role === 'employer' && (
+                    <IconButton onClick={() => handleVerify(user._id, user.isVerified)}>
+                      <Chip
+                        label = {user.isVerified ? 'Unverify' : 'Verify'}
+                        color = {user.isVerified ? 'error' : 'primary'}
+                        size= "small"
+                      />
+                    </IconButton>
+                  )}
                 </Box>
               </Card>
             </Grid>
@@ -170,8 +212,8 @@ const AdminDashboard = () => {
           />
           <TextField
             label="Contact Number"
-            name="contactNumber"
-            value={editForm.contactNumber}
+            name="contact"
+            value={editForm.contact}
             onChange={handleFormChange}
             fullWidth
           />

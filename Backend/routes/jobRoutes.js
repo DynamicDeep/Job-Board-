@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const router = express.Router();
 const Job = require('../Models/Job');
+const User = require('../Models/User');
 const verifyToken = require('../middleware/auth');
 const authorizeRoles = require('../middleware/authorizeRoles');
 
@@ -22,7 +23,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ─── POST Create Job (Employer Only) ──────────────────────────────────
+// ─── POST Create Job (Only Verified Employers) ────────────────────────
 router.post(
   '/',
   verifyToken,
@@ -39,15 +40,27 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { title, company, location, description } = req.body;
     try {
+      const employer = await User.findById(req.user.userId);
+
+      if (!employer || employer.role !== 'employer') {
+        return res.status(403).json({ message: 'Unauthorized: Only employers can post jobs.' });
+      }
+
+      if (!employer.isVerified) {
+        return res.status(403).json({ message: 'Your account must be verified by the admin to post jobs.' });
+      }
+
+      const { title, company, location, description } = req.body;
+
       const job = new Job({
         title,
         company,
         location,
         description,
-        createdBy: req.user.userId, // Link to employer user ID
+        createdBy: req.user.userId,
       });
+
       const newJob = await job.save();
       res.status(201).json(newJob);
     } catch (err) {
@@ -56,7 +69,7 @@ router.post(
   }
 );
 
-// ─── GET Jobs Created by Logged-In Employer ─────────────────────────────
+// ─── GET Jobs Created by Logged-In Employer ────────────────────────────
 router.get('/employer/my-jobs', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const jobs = await Job.find({ createdBy: req.user.userId });
@@ -77,17 +90,31 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ─── PUT Update Job (Admin Only) ──────────────────────────────────────
-router.put('/:id', verifyToken, authorizeRoles('admin'), async (req, res) => {
+// ─── PUT Update Job (Employer) ──────────────────────────────────────
+router.put('/:id', verifyToken, authorizeRoles('admin', 'employer'), async (req, res) => {
   try {
-    const updatedJob = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedJob) return res.status(404).json({ message: 'Job not found' });
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ message: 'Job not found' });
+
+    // Check if user is allowed to update this job
+    if (
+      req.user.role === 'employer' &&
+      job.createdBy.toString() !== req.user.userId
+    ) {
+      return res.status(403).json({ message: 'Not authorized to update this job' });
+    }
+
+    // Admin can update any job, employer can only update their own
+    const updatedJob = await Job.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
 
     res.json(updatedJob);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
+
 
 // ─── DELETE Job (Admin Only) ──────────────────────────────────────────
 router.delete('/:id', verifyToken, authorizeRoles('admin'), async (req, res) => {

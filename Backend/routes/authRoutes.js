@@ -7,7 +7,7 @@ const verifyToken = require('../middleware/auth');
 
 const router = express.Router();
 
-// ─── 3.1 REGISTER ───────────────────────────────────────────────────────────────
+// 3.1 REGISTER
 router.post('/register', [
   body('firstName').notEmpty().withMessage('First name is required'),
   body('lastName').notEmpty().withMessage('Last name is required'),
@@ -51,7 +51,7 @@ router.post('/register', [
   }
 });
 
-// ─── 3.2 LOGIN ──────────────────────────────────────────────────────────────────
+//  3.2 LOGIN
 router.post('/login', [
   body('email').isEmail().withMessage('Valid email required'),
   body('password').exists().withMessage('Password required'),
@@ -77,7 +77,7 @@ router.post('/login', [
   }
 });
 
-// ─── 3.3 GET CURRENT USER ────────────────────────────────────────────────────────
+// 3.3 GET CURRENT USER
 router.get('/me', verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select('-password');
@@ -89,5 +89,55 @@ router.get('/me', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+// Update User profile route
+router.put('/me', verifyToken, async (req, res) => {
+  try{
+    const updateFields = (({ firstName, lastName, email, contact, location }) => ({
+      firstName,
+      lastName,
+      email,
+      contact,
+      location,
+    }))(req.body);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.userId,
+      updateFields,
+      { new: true }
+    ).select('-password');
+
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating user profile' });
+  }
+});
+
+// 3.4 CHANGE PASSWORD
+router.put('/change-password', verifyToken, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Incorrect current password' });
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    user.password = hash;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+//
 
 module.exports = router;

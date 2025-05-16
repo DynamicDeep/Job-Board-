@@ -9,18 +9,23 @@ import {
   Chip,
   Divider,
   Button,
+  IconButton
 } from '@mui/material';
 import WorkIcon from '@mui/icons-material/Work';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import EditIcon from '@mui/icons-material/Edit';
 import UserInfoCard from '../components/UserInfoCard';
 import ApplicantsModal from '../components/ApplicantsModal';
+import EditJobModal from './EditJobModal';
 
 const EmployerDashboard = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedJobId, setSelectedJobId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editJob, setEditJob] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -51,6 +56,17 @@ const EmployerDashboard = () => {
     setModalOpen(true);
   };
 
+  const handleEditJobClick = (job) => {
+    setEditJob(job);
+    setEditModalOpen(true);
+  };
+
+  const handleJobUpdate = (updatedJob) => {
+    setJobs((prevJobs) =>
+      prevJobs.map((job) => (job._id === updatedJob._id ? updatedJob : job))
+    );
+  };
+
   return (
     <Box sx={{ p: 4 }}>
       <UserInfoCard />
@@ -69,7 +85,7 @@ const EmployerDashboard = () => {
         <Grid container spacing={2}>
           {jobs.map((job) => (
             <Grid item xs={12} md={6} key={job._id}>
-              <Card sx={{ boxShadow: 3 }}>
+              <Card sx={{ boxShadow: 3, position: 'relative' }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     {job.title} at {job.company}
@@ -96,9 +112,14 @@ const EmployerDashboard = () => {
 
                   <Box mt={2} display="flex" justifyContent="space-between" alignItems="center">
                     <Chip label="Live" color="success" />
-                    <Button variant="outlined" size="small" onClick={() => handleViewApplicants(job._id)}>
-                      View Applicants
-                    </Button>
+                    <Box display="flex" gap={1}>
+                      <Button variant="outlined" size="small" onClick={() => handleViewApplicants(job._id)}>
+                        View Applicants
+                      </Button>
+                      <IconButton onClick={() => handleEditJobClick(job)}>
+                        <EditIcon />
+                      </IconButton>
+                    </Box>
                   </Box>
                 </CardContent>
               </Card>
@@ -112,6 +133,16 @@ const EmployerDashboard = () => {
         onClose={() => setModalOpen(false)}
         jobId={selectedJobId}
       />
+
+      {editJob && (
+        <EditJobModal
+          open={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          job={editJob}
+          onSave={handleJobUpdate}
+          mode="employer"
+        />
+      )}
     </Box>
   );
 };
