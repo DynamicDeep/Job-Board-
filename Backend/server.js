@@ -40,6 +40,12 @@ app.use('/api/applications', applicationRoutes);
 // Serve uploaded CV files
 app.use('/uploads', express.static('uploads'));
 
+
+//Recommendation System Routes
+const recommendationRoutes = require('./routes/recommendationRoutes');
+app.use('/api/recommendations', recommendationRoutes);
+
+
 // Simple Test Route
 app.get('/api/test', (req, res) => {
     res.send('Hello, Job Board API is running!');

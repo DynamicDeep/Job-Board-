@@ -8,7 +8,7 @@ import {
   Button
 } from "@mui/material";
 
-const EditJobModal = ({ open, onClose, job, onSave }) => {
+const EditJobModal = ({ open, onClose, job, onSave, mode = 'employer' }) => {
   const [formData, setFormData] = useState({
     title: "",
     company: "",
@@ -18,7 +18,12 @@ const EditJobModal = ({ open, onClose, job, onSave }) => {
 
   useEffect(() => {
     if (job) {
-      setFormData(job);
+      setFormData({
+        title: job.title || '',
+        company: job.company || '',
+        location: job.location || '',
+        description: job.description || ''
+      });
     }
   }, [job]);
 
@@ -30,9 +35,28 @@ const EditJobModal = ({ open, onClose, job, onSave }) => {
     }));
   };
 
-  const handleSubmit = () => {
-    onSave(formData); // send updated data back
-    onClose();
+  const handleSubmit = async () => {
+    const token = localStorage.getItem('token');
+    const endpoint = `http://localhost:5000/api/jobs/${job._id}`;
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) throw new Error('Failed to update job');
+
+      const updatedJob = await res.json();
+      onSave(updatedJob); // update parent component
+      onClose();
+    } catch (error) {
+      console.error('Error updating job:', error);
+    }
   };
 
   return (

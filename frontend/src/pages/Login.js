@@ -6,8 +6,6 @@ import {
   TextField,
   Button,
   Alert,
-  FormControlLabel,
-  Checkbox,
   InputAdornment
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -44,6 +42,8 @@ const Login = () => {
       localStorage.setItem("token", token);
       const decoded = jwtDecode(token);
       const role = decoded.role;
+
+      localStorage.setItem("userRole", role); 
 
       if (role === "jobseeker") navigate("/jobseeker-dashboard");
       else if (role === "employer") navigate("/employer-dashboard");
@@ -139,17 +139,6 @@ const Login = () => {
                   ),
                 }}
               />
-
-              <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ my: 2 }}>
-                <FormControlLabel control={<Checkbox />} label="Remember me" />
-                <Typography
-                  variant="body2"
-                  sx={{ cursor: "pointer", color: "primary.main" }}
-                  onClick={() => alert("Redirect to forgot password")}
-                >
-                  Forgot password?
-                </Typography>
-              </Box>
 
               <Button
                 type="submit"

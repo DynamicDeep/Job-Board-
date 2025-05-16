@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   password:  { type: String, required: true },
   contact:   { type: String, required: true },
   location:  { type: String, required: true },
+  isVerified: { type: Boolean, default: false},
   role:      { type: String, enum: ['admin', 'jobseeker', 'employer'], default: 'jobseeker' }
 }, { timestamps: true });
 
