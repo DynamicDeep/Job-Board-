@@ -13,6 +13,7 @@ const port = 5000; // Define port
 // Middleware to parse JSON
 app.use(cors());
 app.use(express.json());
+
 //Register
 app.use('/api/auth', authRoutes);
 

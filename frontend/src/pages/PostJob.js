@@ -133,7 +133,7 @@ const PostJob = () => {
       {/* Success Snackbar */}
       <Snackbar
         open={success}
-        autoHideDuration={3000}
+        autoHideDuration={4000}
         onClose={() => setSuccess(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
