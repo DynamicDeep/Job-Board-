@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ─── 1. Submit Job Application (Jobseeker only) ─────────────────────────────
+// 1. Submit Job Application (Jobseeker only)
 router.post(
   '/:jobId',
   verifyToken,
@@ -53,7 +53,7 @@ router.post(
   }
 );
 
-// ─── 2. Employer: View Applications for a Specific Job ────────────────────────
+//2. Employer: View Applications for a Specific Job
 router.get(
   '/by-job/:jobId',
   verifyToken,
@@ -75,7 +75,7 @@ router.get(
   }
 );
 
-// ─── 3. Admin: View All Applications ──────────────────────────────────────────
+// 3. Admin: View All Applications
 router.get(
   '/all',
   verifyToken,
@@ -90,7 +90,7 @@ router.get(
   }
 );
 
-// ─── 4. Jobseeker: View Applications by Logged-in User ───────────────────────
+//4. Jobseeker: View Applications by Logged-in User
 router.get(
   '/user',
   verifyToken,

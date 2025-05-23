@@ -21,7 +21,7 @@ const Contact = () => {
   //Function to handle form submission
   const handleSubmit = (e) => {
     e.preventDefault(); //Prevent page reload
-    setSubmitted(true); //Submit the form and show thank you massege
+    setSubmitted(true); //Submit the form and show thank you massage
   };
 
   return (

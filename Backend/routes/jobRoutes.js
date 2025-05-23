@@ -69,7 +69,7 @@ router.post(
   }
 );
 
-// ─── GET Jobs Created by Logged-In Employer ────────────────────────────
+//GET Jobs Created by Logged-In Employer
 router.get('/employer/my-jobs', verifyToken, authorizeRoles('employer'), async (req, res) => {
   try {
     const jobs = await Job.find({ createdBy: req.user.userId });
@@ -79,7 +79,7 @@ router.get('/employer/my-jobs', verifyToken, authorizeRoles('employer'), async (
   }
 });
 
-// ─── GET Single Job by ID ─────────────────────────────────────────────
+//GET Single Job by ID
 router.get('/:id', async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -90,7 +90,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ─── PUT Update Job (Employer) ──────────────────────────────────────
+//PUT Update Job (Employer)
 router.put('/:id', verifyToken, authorizeRoles('admin', 'employer'), async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -116,7 +116,7 @@ router.put('/:id', verifyToken, authorizeRoles('admin', 'employer'), async (req,
 });
 
 
-// ─── DELETE Job (Admin Only) ──────────────────────────────────────────
+//DELETE Job (Admin Only)
 router.delete('/:id', verifyToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const deletedJob = await Job.findByIdAndDelete(req.params.id);
